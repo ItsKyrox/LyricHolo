@@ -48,7 +48,7 @@ public final class HoloConfigStore {
             boolean legacySkyShell = stored != null && !stored.has("skyShellRadius");
             int skyVersion = stored != null && stored.has("skyAnchorVersion")
                     ? stored.get("skyAnchorVersion").getAsInt() : 0;
-            boolean olderSkyPlane = stored != null && skyVersion < 2;
+            boolean olderSkyPlane = stored != null && skyVersion < 4;
             if (legacySkyShell) {
                 target.skyMode = true;
                 target.skyShellRadius = 256.0f;
@@ -56,8 +56,12 @@ public final class HoloConfigStore {
                 target.textStroke = false;
             }
             if (olderSkyPlane) {
-                target.skyHeight = 8.0f;
-                target.skyAnchorVersion = 2;
+                // Version 3 briefly treated skyHeight as an offset from the torso.
+                // Restore its camera-relative meaning; older settings already used it
+                // as the fixed sky Y offset.
+                if (skyVersion == 3) target.skyHeight = Math.min(88.0f, target.skyHeight + 8.0f);
+                else if (skyVersion < 2) target.skyHeight = 8.0f;
+                target.skyAnchorVersion = 4;
             }
             normalize(target);
             if (legacySkyShell || olderSkyPlane || migrateSmoothFont) save(target);
@@ -96,7 +100,7 @@ public final class HoloConfigStore {
                 HoloConfig sky = new HoloConfig();
                 sky.skyMode = true;
                 sky.skyHeight = 8.0f;
-                sky.skyAnchorVersion = 2;
+                sky.skyAnchorVersion = 4;
                 sky.skyShellRadius = 256.0f;
                 sky.offsetZ = -16.0f;
                 sky.sideSpread3D = 12.0f;
@@ -144,7 +148,7 @@ public final class HoloConfigStore {
             JsonObject profile = new JsonObject();
             profile.addProperty("name", name.trim());
             if (name.trim().equalsIgnoreCase("One Word") || name.trim().equalsIgnoreCase("Sky Hologram"))
-                profile.addProperty("builtinVersion", 6);
+                profile.addProperty("builtinVersion", 8);
             profile.add("settings", GSON.toJsonTree(config));
             writeAtomically(path, GSON.toJson(profile));
             return true;
@@ -194,19 +198,19 @@ public final class HoloConfigStore {
         try {
             JsonObject profile = GSON.fromJson(Files.readString(path, StandardCharsets.UTF_8), JsonObject.class);
             if (profile == null || profile.get("builtinVersion") != null
-                    && profile.get("builtinVersion").getAsInt() >= 6) return;
+                    && profile.get("builtinVersion").getAsInt() >= 8) return;
             JsonObject settings = profile.getAsJsonObject("settings");
             if (settings == null) return;
             if (name.equalsIgnoreCase("One Word")) {
                 settings.addProperty("wordsPerLine", 1);
                 settings.addProperty("oldTextHoldMs", 500);
                 settings.addProperty("skyHeight", 8.0f);
-                settings.addProperty("skyAnchorVersion", 2);
+                settings.addProperty("skyAnchorVersion", 4);
                 settings.addProperty("lyricsProvider", HoloConfig.LyricsProvider.YOUTUBE_MUSIC.name());
             } else {
                 settings.addProperty("skyMode", true);
                 settings.addProperty("skyHeight", 8.0f);
-                settings.addProperty("skyAnchorVersion", 2);
+                settings.addProperty("skyAnchorVersion", 4);
                 settings.addProperty("skyShellRadius", 256.0f);
                 settings.addProperty("offsetZ", -16.0f);
                 settings.addProperty("sideSpread3D", 12.0f);
@@ -226,7 +230,7 @@ public final class HoloConfigStore {
             if (storedSettings != null && "DEFAULT".equals(storedSettings.has("fontStyle")
                     ? storedSettings.get("fontStyle").getAsString() : "DEFAULT"))
                 storedSettings.addProperty("fontStyle", HoloConfig.FontStyle.SMOOTH.name());
-            profile.addProperty("builtinVersion", 6);
+            profile.addProperty("builtinVersion", 8);
             writeAtomically(path, GSON.toJson(profile));
         } catch (Exception ignored) { }
     }
@@ -258,10 +262,10 @@ public final class HoloConfigStore {
         config.syncOffsetMs = Math.max(-30_000L, Math.min(30_000L, config.syncOffsetMs));
         config.oldTextHoldMs = clamp(config.oldTextHoldMs, 0, 10_000);
         config.wordsPerLine = clamp(config.wordsPerLine, 0, 20);
-        config.textSizePx = clamp(config.textSizePx, 8, 48);
+        config.textSizePx = clamp(config.textSizePx, 8, 128);
         config.historyLines = clamp(config.historyLines, 0, 5);
         config.lookaheadLines = clamp(config.lookaheadLines, 0, 5);
-        config.skyHeight = clampFinite(config.skyHeight, 0.0f, 88.0f, 8.0f);
+        config.skyHeight = clampFinite(config.skyHeight, 0.0f, 88.0f, 0.0f);
         config.skyShellRadius = clampFinite(config.skyShellRadius, 64.0f, 2048.0f, 256.0f);
         config.maxOnScreenAngle = clampFinite(config.maxOnScreenAngle, 5.0f, 80.0f, 34.0f);
         config.intensity = clampFinite(config.intensity, 0.0f, 1.0f, 0.65f);

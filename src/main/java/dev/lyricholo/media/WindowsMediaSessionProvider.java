@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Reads Windows Global System Media Transport Controls directly through WinRT. */
-public final class WindowsMediaSessionProvider implements WinRtMediaSession.Listener {
+public final class WindowsMediaSessionProvider implements MediaProvider, WinRtMediaSession.Listener {
     private static final long EMPTY_SESSION_GRACE_MS = 500;
     private final AtomicReference<MediaTrack> current = new AtomicReference<>();
     private volatile String error = "";
@@ -12,7 +12,7 @@ public final class WindowsMediaSessionProvider implements WinRtMediaSession.List
     private volatile long missingSinceMs;
     private Thread worker;
 
-    public synchronized void start() {
+    @Override public synchronized void start() {
         if (running || !System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win")) return;
         running = true;
         worker = new Thread(this::run, "LyricHolo-WinRT-Media");
@@ -20,10 +20,10 @@ public final class WindowsMediaSessionProvider implements WinRtMediaSession.List
         worker.start();
     }
 
-    public MediaTrack poll() { return current.get(); }
-    public String error() { return error; }
+    @Override public MediaTrack poll() { return current.get(); }
+    @Override public String error() { return error; }
 
-    public synchronized void stop() {
+    @Override public synchronized void stop() {
         running = false;
         if (worker != null) worker.interrupt();
         worker = null;

@@ -21,8 +21,8 @@ public final class HoloConfig {
     public int backplateOpacity = 54;
     public int strokeOpacity = 220;
     public float skyHeight = 8.0f;
-    /** Bumped only when the default sky-plane height changes, for safe config migration. */
-    public int skyAnchorVersion = 2;
+    /** Bumped when sky-anchor placement behavior changes. */
+    public int skyAnchorVersion = 4;
     /** Radius of the world-space shell used to make sky lyrics track the celestial panorama. */
     public float skyShellRadius = 256.0f;
     public FontStyle fontStyle = FontStyle.SMOOTH;

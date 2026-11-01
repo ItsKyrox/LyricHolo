@@ -2,11 +2,12 @@
 
 LyricHolo brings your music into Minecraft as synced, animated lyric holograms. It reads the active track from the Windows media session, looks up timed lyrics, and displays them in the world or in a small HUD panel.
 
-> **Current support:** Minecraft **1.21.11**, Fabric, Java 21+, Windows. This is a client-side mod. A build for Minecraft 26.1.2 is not included in this repository.
+> **Current support:** Minecraft **1.21.11**, Fabric, Java 21+, Windows and macOS. This is a client-side mod. A build for Minecraft 26.1.2 is not included in this repository.
 
 ## Features
 
 - Detects track title, artist, album, playback position, and play state from Windows media sessions.
+- On macOS, reads track metadata and playback position from the Spotify desktop app and Apple Music app.
 - Looks up synchronized lyrics using **YouTube Music** or **LRCLIB**. Choose the source in the in-game menu.
 - Renders lyrics as floating 3D text or as a corner HUD display.
 - Offers word-sync modes, including highlight, pop-up, and separately stacked words. Word-level timing depends on the lyric source.
@@ -22,7 +23,7 @@ LyricHolo brings your music into Minecraft as synced, animated lyric holograms. 
 
 ## Use
 
-1. Start audio in an app that exposes its track metadata through Windows media controls. Spotify, YouTube Music, and supported browsers are examples; browser behavior can vary.
+1. Start audio in a supported player. On Windows, use an app that exposes its track metadata through Windows media controls. On macOS, use the Spotify desktop app or Apple Music app. Browser playback support depends on whether the browser exposes a media session to the operating system.
 2. Press **H** to open LyricHolo's control deck. You can change the key in Minecraft's **Options → Controls** menu.
 3. Select a lyrics source, enable the display you want, and adjust the appearance in **Text / Theme**.
 
@@ -47,7 +48,7 @@ Open the control deck with **H**. The menu includes controls for:
 
 ## Compatibility and privacy
 
-- Media detection currently works on **Windows** through the system's Global System Media Transport Controls (GSMTC). Other operating systems are not supported by the current media provider.
+- Media detection works on **Windows** through Global System Media Transport Controls (GSMTC), and on **macOS** through AppleScript for the Spotify desktop and Apple Music apps. macOS may ask you to allow Minecraft or its launcher to control those apps under **System Settings → Privacy & Security → Automation**. Other macOS players and browsers are not guaranteed to work.
 - Lyric lookup requires an internet connection. Depending on the selected source, LyricHolo sends track metadata such as title, artist, album, and duration to that source to find lyrics.
 - LyricHolo reads media metadata and playback state; it does not capture or transmit audio.
 - YouTube Music lookup relies on an unofficial endpoint and may stop working if YouTube changes its protocol.
@@ -62,7 +63,7 @@ From PowerShell in the project directory:
 .\gradlew.bat build
 ```
 
-The remapped mod JAR is produced in `build/libs/` (currently `lyricholo-1.21.11-1.0.0.jar`).
+The remapped mod JAR is produced in `build/libs/` (currently `lyricholo-1.21.11-1.0.1.jar`).
 
 ## Credits and license
 

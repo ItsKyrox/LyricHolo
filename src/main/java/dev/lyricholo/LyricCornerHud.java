@@ -35,7 +35,7 @@ final class LyricCornerHud {
         }
         linePop += (0f - linePop) * 0.16f;
         TextRenderer font = mc.textRenderer;
-        float textScale = Math.max(8, Math.min(48, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
+        float textScale = Math.max(8, Math.min(128, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
         int lineStep = Math.max(8, Math.round(10 * textScale));
         int width = Math.min(310, Math.max(220, mc.getWindow().getScaledWidth() - 32));
         var rows = LyricTextLayout.wrap(track, index, playhead,

@@ -127,12 +127,13 @@ final class LyricWorldRenderer {
             }
             Vec3d placed = placeAnchor(camera.pos, camera.orientation, placementDistance, anchorHeight,
                     LyricHoloClient.CONFIG.keepOnScreen3D ? maxHorizontalAngle(mc, placementDistance) : Float.POSITIVE_INFINITY,
-                    newAnchor);
+                    newAnchor, mc.player.getY() + mc.player.getHeight() * 0.68);
             if (LyricHoloClient.CONFIG.skyMode) {
                 if (!Double.isFinite(fixedSkyY)) fixedSkyY = camera.pos.y + anchorHeight;
                 anchor = new Vec3d(placed.x, fixedSkyY, placed.z);
             } else anchor = placed;
-            fixedOrientation = new Quaternionf(camera.orientation);
+            fixedOrientation = LyricHoloClient.CONFIG.skyMode
+                    ? yawOnlyOrientation(camera.orientation) : new Quaternionf(camera.orientation);
             placedDistance = configuredDistance;
             placedHeight = anchorHeight;
             placedSkyMode = LyricHoloClient.CONFIG.skyMode;
@@ -187,12 +188,15 @@ final class LyricWorldRenderer {
         MatrixStack matrices = context.matrices();
         matrices.push();
         matrices.translate(anchor.x-cameraPos.x, anchor.y-cameraPos.y, anchor.z-cameraPos.z);
-        matrices.multiply(LyricHoloClient.CONFIG.billboard ? camera.orientation : fixedOrientation);
+        Quaternionf textOrientation = LyricHoloClient.CONFIG.skyMode && LyricHoloClient.CONFIG.billboard
+                ? yawOnlyOrientation(camera.orientation)
+                : (LyricHoloClient.CONFIG.billboard ? camera.orientation : fixedOrientation);
+        matrices.multiply(textOrientation);
         float riseIn = (popFade ? 0.30f : 0.0f) + (wordPop ? 0.14f : 0.0f);
         if (riseIn > 0.0f) matrices.translate(0.0f, -(1.0f - eased) * riseIn, 0.0f);
         // Keep the projection peripheral and unobtrusive: at this scale a full line
         // occupies roughly one block of world space instead of covering the view.
-        float configuredTextScale = Math.max(8, Math.min(48, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
+        float configuredTextScale = Math.max(8, Math.min(128, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
         float scale = 0.025f * configuredTextScale * scaleMultiplier * (float)distanceScale;
         matrices.scale(scale, -scale, scale);
 
@@ -334,7 +338,7 @@ final class LyricWorldRenderer {
         }
 
         HoloConfig.TextAnimation animation = LyricHoloClient.CONFIG.textAnimation;
-        float configuredTextScale = Math.max(8, Math.min(48, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
+        float configuredTextScale = Math.max(8, Math.min(128, LyricHoloClient.CONFIG.textSizePx)) / 16.0f;
         float baseScale = 0.025f * configuredTextScale * (float)distanceScale;
         int plateAlpha = Math.max(0, Math.min(255, LyricHoloClient.CONFIG.backplateOpacity));
         int backplate = LyricHoloClient.CONFIG.worldBackplate && !LyricHoloClient.CONFIG.skyMode
@@ -486,20 +490,17 @@ final class LyricWorldRenderer {
                          long createdAtNanos, long expiresAtNanos, long durationNanos) {}
 
     private static Vec3d placeAnchor(Vec3d cameraPos, Quaternionf orientation, double distance, double height,
-                                     float safeHorizontalAngle, boolean newLine) {
+                                     float safeHorizontalAngle, boolean newLine, double torsoY) {
         Vector3f forward = orientation.transform(new Vector3f(0.0f, 0.0f, -1.0f));
         Vector3f right = orientation.transform(new Vector3f(1.0f, 0.0f, 0.0f));
-        if (LyricHoloClient.CONFIG.skyMode) {
-            // A sky shell is laid out on a fixed horizontal world plane. Use camera yaw
-            // for its horizontal direction so camera pitch cannot lift the anchor overhead.
-            forward.y = 0.0f;
-            right.y = 0.0f;
-            if (forward.lengthSquared() > 1.0e-6f) forward.normalize();
-            if (right.lengthSquared() > 1.0e-6f) right.normalize();
-        }
-        Vector3f up = LyricHoloClient.CONFIG.skyMode
-                ? new Vector3f(0.0f, 1.0f, 0.0f)
-                : orientation.transform(new Vector3f(0.0f, 1.0f, 0.0f));
+        // Keep both spawn modes in front on the horizontal plane. Regular world text
+        // uses torso Y; sky mode retains its independent fixed sky-plane Y.
+        forward.y = 0.0f;
+        right.y = 0.0f;
+        if (forward.lengthSquared() > 1.0e-6f) forward.normalize();
+        else forward.set(right.z, 0.0f, -right.x);
+        if (right.lengthSquared() > 1.0e-6f) right.normalize();
+        Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
         if (newLine) {
             lastSideRight = !lastSideRight;
             placedSideJitter = Math.toRadians(ThreadLocalRandom.current().nextDouble(-3.0, 3.0));
@@ -518,7 +519,22 @@ final class LyricWorldRenderer {
                 (float)(forward.y * distance + right.y * sideDistance + up.y * heightOffset),
                 (float)(forward.z * distance + right.z * sideDistance + up.z * heightOffset));
         if (LyricHoloClient.CONFIG.skyMode) offset.y = 0.0f;
+        else return new Vec3d(cameraPos.x + offset.x, torsoY + heightOffset, cameraPos.z + offset.z);
         return cameraPos.add(offset.x, offset.y, offset.z);
+    }
+
+    /** Removes camera pitch from sky holograms so they remain level in the world. */
+    private static Quaternionf yawOnlyOrientation(Quaternionf orientation) {
+        Vector3f forward = orientation.transform(new Vector3f(0.0f, 0.0f, -1.0f));
+        forward.y = 0.0f;
+        if (forward.lengthSquared() < 1.0e-6f) {
+            Vector3f right = orientation.transform(new Vector3f(1.0f, 0.0f, 0.0f));
+            forward.set(right.z, 0.0f, -right.x);
+        }
+        if (forward.lengthSquared() < 1.0e-6f) return new Quaternionf();
+        forward.normalize();
+        float yaw = (float)Math.atan2(-forward.x, -forward.z);
+        return new Quaternionf().rotationY(yaw);
     }
 
     /** Cache the spawn angle relative to the view for the screen-sticky 3D mode. */

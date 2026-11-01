@@ -54,7 +54,7 @@ final class TextSettingsScreen extends Screen {
                 });
         addDrawableChild(skyYSlider);
         skyYField=new TextFieldWidget(textRenderer,left+244,sy+slider+2,58,20,Text.literal("Y+"));
-        skyYField.setMaxLength(2);
+        skyYField.setMaxLength(3);
         skyYField.setText(Integer.toString(Math.round(c.skyHeight)));
         skyYField.setDrawsBackground(false);
         skyYField.setEditableColor(0xFFF5EBFF);
@@ -63,14 +63,14 @@ final class TextSettingsScreen extends Screen {
         addDrawableChild(new HoloSlider(left,sy+2*slider,302,slider,c.oldTextHoldMs/10_000.0,
                 value->HoloText.t("PREVIOUS TEXT HOLD")+"  "+String.format("%.1f s",value*10),value->c.oldTextHoldMs=clamp((int)Math.round(value*10_000),0,10_000)));
         int textSizeY=sy+3*slider;
-        pixelsSlider=new HoloSlider(left,textSizeY,236,slider,(clamp(c.textSizePx,8,48)-8)/40.0,
+        pixelsSlider=new HoloSlider(left,textSizeY,236,slider,(clamp(c.textSizePx,8,128)-8)/120.0,
                 value->HoloText.t("TEXT SIZE"),value->{
-                    c.textSizePx=clamp((int)Math.round(8+value*40),8,48);
+                    c.textSizePx=clamp((int)Math.round(8+value*120),8,128);
                     if(pixelsField!=null&&!pixelsField.isFocused())pixelsField.setText(Integer.toString(c.textSizePx));
                 });
         addDrawableChild(pixelsSlider);
         pixelsField=new TextFieldWidget(textRenderer,left+244,textSizeY+2,58,20,Text.literal("px"));
-        pixelsField.setMaxLength(2);
+        pixelsField.setMaxLength(3);
         pixelsField.setText(Integer.toString(c.textSizePx));
         pixelsField.setDrawsBackground(false);
         pixelsField.setEditableColor(0xFFF5EBFF);
@@ -103,9 +103,9 @@ final class TextSettingsScreen extends Screen {
 
     private void applyPixelsLive(String raw) {
         try {
-            int pixels=clamp(Integer.parseInt(raw.trim()),8,48);
+            int pixels=clamp(Integer.parseInt(raw.trim()),8,128);
             LyricHoloClient.CONFIG.textSizePx=pixels;
-            if(pixelsSlider!=null)pixelsSlider.setNormalizedValue((pixels-8)/40.0);
+            if(pixelsSlider!=null)pixelsSlider.setNormalizedValue((pixels-8)/120.0);
         } catch (RuntimeException ignored) { }
     }
 

@@ -2,7 +2,7 @@ package dev.lyricholo;
 
 import dev.lyricholo.common.*;
 import dev.lyricholo.media.MediaTrack;
-import dev.lyricholo.media.WindowsMediaSessionProvider;
+import dev.lyricholo.media.PlatformMediaProvider;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -20,7 +20,7 @@ import net.minecraft.util.math.Vec3d;
 public final class LyricHoloClient implements ClientModInitializer {
     public static final HoloConfig CONFIG = new HoloConfig();
     public static final AtomicReference<LrcTrack> TRACK = new AtomicReference<>();
-    public static final WindowsMediaSessionProvider MEDIA = new WindowsMediaSessionProvider();
+    public static final PlatformMediaProvider MEDIA = new PlatformMediaProvider();
     public static volatile String activeTrackKey = "";
     public static volatile String title = "", artist = "", status = "Waiting for a song to play";
     private static KeyBinding open;
@@ -64,7 +64,7 @@ public final class LyricHoloClient implements ClientModInitializer {
             lookupRetryAtMs = 0;
             lookupRetryCount = 0;
             title = ""; artist = "";
-            status = MEDIA.error().isBlank() ? "Waiting for Spotify, YouTube or browser audio" : MEDIA.error();
+            status = MEDIA.error().isBlank() ? "Waiting for Spotify, Apple Music or browser audio" : MEDIA.error();
             return;
         }
         title = media.title(); artist = media.artist();

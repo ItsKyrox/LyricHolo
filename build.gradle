@@ -2,7 +2,7 @@ plugins {
     id 'net.fabricmc.fabric-loom-remap' version '1.14.10'
     id 'maven-publish'
 }
-version = '1.0.0'
+version = '1.0.1'
 group = 'dev.lyricholo'
 base { archivesName = 'lyricholo-1.21.11' }
 

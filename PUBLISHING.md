@@ -7,12 +7,13 @@
 - **Supported game version in this artifact:** Minecraft 1.21.11
 - **Loaders:** Fabric
 - **Environment:** Client-side
+- **Supported media platforms:** Windows media sessions; macOS Spotify desktop app and Apple Music app
 - **License:** Not declared yet. Select and include the intended license before publishing; do not mark the project MIT or another license without the author's decision.
 
 ## Upload
 
 1. Build with `gradlew.bat build` using Java 21.
-2. Upload the remapped jar from `build/libs/lyricholo-1.21.11-1.0.0.jar`.
+2. Upload the remapped jar from `build/libs/lyricholo-1.21.11-1.0.1.jar`.
 3. Mark it for Minecraft 1.21.11 and Fabric only. Do not tag 26.1.2; that port is not present.
 4. Add Fabric API as a required dependency. JNA is bundled in the mod jar.
 5. Use the README compatibility and privacy sections in the project description.
@@ -21,7 +22,8 @@
 
 ## Known release limitations
 
-- Media detection currently supports Windows only.
+- Media detection supports Windows and macOS (Spotify desktop and Apple Music on macOS).
+- macOS detection uses AppleScript and requires user approval for Minecraft/the launcher to control Spotify or Music. Other players and browser media are not guaranteed to work.
 - YouTube Music uses an unofficial endpoint and can break if its protocol changes.
 - Lyric availability and word-level timing depend on external providers.
 - The game itself and live account/provider behavior were not exercised as part of this source review.
