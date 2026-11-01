@@ -67,4 +67,4 @@ The remapped mod JAR is produced in `build/libs/` (currently `lyricholo-1.21.11-
 
 ## Credits and license
 
-Created by **ItsKyrox_MC**. Pacifico and Smooth font files are bundled with their respective SIL Open Font License notices in `src/main/resources/assets/lyricholo/font/`. A license for LyricHolo's own source code has not yet been declared.
+Created by **ItsKyrox_MC**. LyricHolo's source code is licensed under **Apache-2.0**; see [`LICENSE`](LICENSE). The bundled Pacifico and Smooth font files are covered by their respective SIL Open Font License notices in `src/main/resources/assets/lyricholo/font/`.
