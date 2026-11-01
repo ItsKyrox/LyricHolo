@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "lyricholo",
+  "version": "${version}",
+  "name": "LyricHolo",
+  "authors": ["ItsKyrox_MC"],
+  "description": "Time-synced lyrics as a holographic 3D projection.",
+  "icon": "lyricholo/icon.png",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.lyricholo.LyricHoloClient"] },
+  "mixins": [{ "config": "lyricholo.mixins.json", "environment": "client" }],
+  "depends": { "fabricloader": ">=0.18.0", "minecraft": "1.21.11", "java": ">=21", "fabric-api": "*" }
+}

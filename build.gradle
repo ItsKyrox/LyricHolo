@@ -1,0 +1,20 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version '1.14.10'
+    id 'maven-publish'
+}
+version = '1.0.0'
+group = 'dev.lyricholo'
+base { archivesName = 'lyricholo-1.21.11' }
+
+repositories { maven { url = 'https://maven.fabricmc.net/' }; mavenCentral() }
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.11'
+    mappings 'net.fabricmc:yarn:1.21.11+build.5:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.18.4'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.141.3+1.21.11'
+    implementation 'net.java.dev.jna:jna:5.19.1'
+    include 'net.java.dev.jna:jna:5.19.1'
+}
+processResources { inputs.property 'version', project.version; filesMatching('fabric.mod.json') { expand 'version': project.version } }
+tasks.withType(JavaCompile).configureEach { it.options.release = 21 }
+java { sourceCompatibility = JavaVersion.VERSION_21; targetCompatibility = JavaVersion.VERSION_21; withSourcesJar() }

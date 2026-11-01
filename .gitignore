@@ -1,0 +1,25 @@
+# Gradle and build outputs
+.gradle/
+build/
+out/
+
+# Local Minecraft run directories and generated reports
+run/
+logs/
+crash-reports/
+*.log
+*.hprof
+hs_err_pid*
+
+# IDE metadata
+.idea/
+*.iml
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local decompiler scratch dumps
+/work-*.txt

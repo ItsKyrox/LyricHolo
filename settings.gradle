@@ -1,0 +1,2 @@
+pluginManagement { repositories { maven { url = 'https://maven.fabricmc.net/' }; gradlePluginPortal() } }
+rootProject.name = 'LyricHolo-1.21.11'

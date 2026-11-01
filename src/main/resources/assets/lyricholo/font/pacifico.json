@@ -1,0 +1,11 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "lyricholo:pacifico.ttf",
+      "shift": [0.0, 0.0],
+      "size": 11.0,
+      "oversample": 6.0
+    }
+  ]
+}
